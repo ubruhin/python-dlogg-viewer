@@ -17,28 +17,29 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from config import *
-from window import DLoggViewerWindow
-from dlogg_db import DLoggDbDownload
 from pyqtgraph.Qt import QtGui
-import datetime
+from graph_widget import DLoggGraphWidget
 import logging
 
 log = logging.getLogger(__name__)
 
 
-if __name__ == "__main__":
-    logging.basicConfig(format='[%(levelname)s] %(message)s', level=logging.DEBUG)
+class DLoggViewerWindow(QtGui.QMainWindow):
+    def __init__(self, data):
+        QtGui.QMainWindow.__init__(self)
+        self.setWindowTitle("D-LOGG Data")
+        self.resize(1280, 1024)
+        central_widget = QtGui.QWidget(self)
+        self.setCentralWidget(central_widget)
+        sidebar_layout = QtGui.QVBoxLayout()
+        central_layout = QtGui.QHBoxLayout(central_widget)
+        central_layout.setContentsMargins(3, 0, 0, 0)
+        central_layout.addLayout(sidebar_layout)
+        central_layout.addWidget(DLoggGraphWidget(data))
 
-    with DLoggDbDownload(db_host, db_port, db_name, db_user, db_pw) as download:
+        check1 = QtGui.QCheckBox('hello')
+        check1.stateChanged.connect(self.checkbox_checked_changed)
+        sidebar_layout.addWidget(check1)
 
-        # fetch data from database
-        end_utc = datetime.datetime.utcnow()
-        start_utc = end_utc - datetime.timedelta(days=7)
-        data = download.fetch_data_range(start_utc, end_utc)
-
-        # show window
-        app = QtGui.QApplication([])
-        win = DLoggViewerWindow(data)
-        win.show()
-        QtGui.QApplication.instance().exec_()
+    def checkbox_checked_changed(self, state):
+        print self.sender()
