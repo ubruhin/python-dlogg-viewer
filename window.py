@@ -46,7 +46,7 @@ class ColoredCheckbox(QtGui.QWidget):
 class DLoggViewerWindow(QtGui.QMainWindow):
     def __init__(self, data):
         QtGui.QMainWindow.__init__(self)
-        self.setWindowTitle("D-LOGG Data")
+        self.setWindowTitle("D-LOGG Viewer")
         self.resize(1280, 1024)
         central_widget = QtGui.QWidget(self)
         self.setCentralWidget(central_widget)
