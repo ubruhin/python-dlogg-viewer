@@ -39,42 +39,40 @@ class TimeAxisItem(pg.AxisItem):
 class DLoggGraphWidget(pg.GraphicsLayoutWidget):
     def __init__(self, data):
         pg.GraphicsLayoutWidget.__init__(self)
+        self._data = data
 
         # x-axis
-        timestamps = [dt.astype(long) for dt in data['inserted'].as_matrix()]
+        self._timestamps = [dt.astype(long) for dt in self._data['inserted'].as_matrix()]
 
         # inputs
-        plot_inputs = self.addPlot(row=0, col=0, axisItems={'bottom': TimeAxisItem(orientation='bottom')})
-        plot_inputs.setLabel('left', "Inputs")
-        plot_inputs.showGrid(x=True, y=True, alpha=0.8)
-        for i in range(0, 16):
-            column = "input_{}".format(i + 1)
-            name = u"I{}: {}".format(i + 1, input_names[i + 1])
-            color = pg.intColor(i)
-            plot_inputs.plot(x=timestamps, y=data[column].as_matrix(), pen=color, name=name)
+        self._plot_inputs = self.addPlot(row=0, col=0, axisItems={'bottom': TimeAxisItem(orientation='bottom')})
+        self._plot_inputs.setLabel('left', "Inputs")
+        self._plot_inputs.showGrid(x=True, y=True, alpha=0.8)
 
         # outputs
-        plot_outputs = self.addPlot(row=1, col=0)
-        plot_outputs.setLabel('left', "Outputs")
-        plot_outputs.showGrid(x=True, y=True, alpha=0.8)
-        plot_outputs.hideAxis('bottom')
-        plot_outputs.setMaximumHeight(100)
-        plot_outputs.setXLink(plot_inputs)
-        for i in range(0, 13):
-            column = "output_{}".format(i + 1)
-            name = u"O{}: {}".format(i + 1, output_names[i + 1])
-            color = pg.intColor(i)
-            plot_outputs.plot(x=timestamps, y=data[column].as_matrix(), pen=color, name=name)
+        self._plot_outputs = self.addPlot(row=1, col=0)
+        self._plot_outputs.setLabel('left', "Outputs")
+        self._plot_outputs.showGrid(x=True, y=True, alpha=0.8)
+        self._plot_outputs.hideAxis('bottom')
+        self._plot_outputs.setMaximumHeight(100)
+        self._plot_outputs.setXLink(self._plot_inputs)
 
         # pump speeds
-        plot_pumps = self.addPlot(row=2, col=0)
-        plot_pumps.setLabel('left', "Pump Speeds")
-        plot_pumps.showGrid(x=True, y=True, alpha=0.8)
-        plot_pumps.hideAxis('bottom')
-        plot_pumps.setMaximumHeight(200)
-        plot_pumps.setXLink(plot_inputs)
-        for i in range(0, 4):
-            column = "pump_speed_{}".format(i + 1)
-            name = u"P{}: {}".format(i + 1, pump_names[i + 1])
-            color = pg.intColor(i)
-            plot_pumps.plot(x=timestamps, y=data[column].as_matrix(), pen=color, name=name)
+        self._plot_pumps = self.addPlot(row=2, col=0)
+        self._plot_pumps.setLabel('left', "Pump Speeds")
+        self._plot_pumps.showGrid(x=True, y=True, alpha=0.8)
+        self._plot_pumps.hideAxis('bottom')
+        self._plot_pumps.setMaximumHeight(200)
+        self._plot_pumps.setXLink(self._plot_inputs)
+
+    def add_input(self, index, name, color):
+        column = "input_{}".format(index + 1)
+        return self._plot_inputs.plot(x=self._timestamps, y=self._data[column].as_matrix(), pen=color, name=name)
+
+    def add_output(self, index, name, color):
+        column = "output_{}".format(index + 1)
+        return self._plot_outputs.plot(x=self._timestamps, y=self._data[column].as_matrix(), pen=color, name=name)
+
+    def add_pump_speed(self, index, name, color):
+        column = "pump_speed_{}".format(index + 1)
+        return self._plot_pumps.plot(x=self._timestamps, y=self._data[column].as_matrix(), pen=color, name=name)
